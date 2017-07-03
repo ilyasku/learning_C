@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "/home/ilyas/workspace/learning_C/builddir",
+    "command": "cc  -Iwhat@exe -I. -I.. -fdiagnostics-color=always -pipe -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -MMD -MQ 'what@exe/src_first_main.c.o' -MF 'what@exe/src_first_main.c.o.d' -o 'what@exe/src_first_main.c.o' -c ../src/first_main.c",
+    "file": "../src/first_main.c"
+  }
+]

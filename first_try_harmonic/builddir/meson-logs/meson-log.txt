@@ -1,0 +1,14 @@
+Build started at 2017-07-03T15:54:19.063015
+Python binary: /usr/bin/python
+Python system: Linux
+The Meson build system
+Version: 0.41.1
+Source dir: /home/ilyas/workspace/learning_C/first_try_harmonic
+Build dir: /home/ilyas/workspace/learning_C/first_try_harmonic/builddir
+Build type: native build
+Project name: First Try Harmonic Oscillator
+Native c compiler: cc (gcc 7.1.1)
+Build machine cpu family: x86_64
+Build machine cpu: x86_64
+Adding test "test harmonic oscillator".
+Build targets in project: 2

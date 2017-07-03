@@ -1,0 +1,23 @@
+Build started at 2017-06-30T12:18:54.940836
+Python binary: /usr/bin/python
+Python system: Linux
+The Meson build system
+Version: 0.41.1
+Source dir: /home/ilyas/workspace/learning_C
+Build dir: /home/ilyas/workspace/learning_C/builddir
+Build type: native build
+Project name: learning C
+Sanity testing c compiler: cc
+Is cross compiler: False.
+Sanity check compiler command line: cc /home/ilyas/workspace/learning_C/builddir/meson-private/sanitycheckc.c -o /home/ilyas/workspace/learning_C/builddir/meson-private/sanitycheckc.exe
+Sanity check compile stdout:
+
+-----
+Sanity check compile stderr:
+
+-----
+Running test binary command: /home/ilyas/workspace/learning_C/builddir/meson-private/sanitycheckc.exe
+Native c compiler: cc (gcc 7.1.1)
+Build machine cpu family: x86_64
+Build machine cpu: x86_64
+Build targets in project: 1

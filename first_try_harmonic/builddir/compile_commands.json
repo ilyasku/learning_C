@@ -1,0 +1,22 @@
+[
+  {
+    "directory": "/home/ilyas/workspace/learning_C/first_try_harmonic/builddir",
+    "command": "cc  -Iharmonic@exe -I. -I.. -fdiagnostics-color=always -pipe -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -MMD -MQ 'harmonic@exe/src_main.c.o' -MF 'harmonic@exe/src_main.c.o.d' -o 'harmonic@exe/src_main.c.o' -c ../src/main.c",
+    "file": "../src/main.c"
+  },
+  {
+    "directory": "/home/ilyas/workspace/learning_C/first_try_harmonic/builddir",
+    "command": "cc  -Iharmonic@exe -I. -I.. -fdiagnostics-color=always -pipe -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -MMD -MQ 'harmonic@exe/src_harmonic_oscillator.c.o' -MF 'harmonic@exe/src_harmonic_oscillator.c.o.d' -o 'harmonic@exe/src_harmonic_oscillator.c.o' -c ../src/harmonic_oscillator.c",
+    "file": "../src/harmonic_oscillator.c"
+  },
+  {
+    "directory": "/home/ilyas/workspace/learning_C/first_try_harmonic/builddir",
+    "command": "cc  -Itest_executable@exe -I. -I.. -fdiagnostics-color=always -pipe -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -pthread -MMD -MQ 'test_executable@exe/tests_test_harmonic_oscillator.c.o' -MF 'test_executable@exe/tests_test_harmonic_oscillator.c.o.d' -o 'test_executable@exe/tests_test_harmonic_oscillator.c.o' -c ../tests/test_harmonic_oscillator.c",
+    "file": "../tests/test_harmonic_oscillator.c"
+  },
+  {
+    "directory": "/home/ilyas/workspace/learning_C/first_try_harmonic/builddir",
+    "command": "cc  -Itest_executable@exe -I. -I.. -fdiagnostics-color=always -pipe -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -pthread -MMD -MQ 'test_executable@exe/src_harmonic_oscillator.c.o' -MF 'test_executable@exe/src_harmonic_oscillator.c.o.d' -o 'test_executable@exe/src_harmonic_oscillator.c.o' -c ../src/harmonic_oscillator.c",
+    "file": "../src/harmonic_oscillator.c"
+  }
+]
