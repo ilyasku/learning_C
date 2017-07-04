@@ -2,10 +2,10 @@
 #include <check.h>
 #include "src/harmonic_oscillator.h"
 
-START_TEST(test_harmonic_oscillator)
+START_TEST(test_psi_n_plus)
 {
   epsilon = 1.0;
-  double delta_xi = 0.1;
+  delta_xi = 0.1;
   delta_xi_squared = delta_xi * delta_xi;
 
   double psi_0 = 1.0;
@@ -16,7 +16,20 @@ START_TEST(test_harmonic_oscillator)
   double xi_2 = delta_xi * 2;
 
   double psi_2 = psi_n_plus(xi_0, psi_0, xi_1, psi_1, xi_2);
-  ck_assert_double_eq_tol(3.039798, psi_2, 0.0001);
+  ck_assert_double_eq_tol(3.039798, psi_2, 0.00001);
+}
+END_TEST
+
+START_TEST(test_get_psi_1_for_nodes_odd)
+{
+  epsilon = 1.0;
+  delta_xi = 0.1;
+  delta_xi_squared = delta_xi * delta_xi;
+
+  double psi_0 = 1.0;
+
+  double psi_1 = get_psi_1_for_nodes_odd(psi_0);
+  ck_assert_double_eq_tol(1.010008, psi_1, 0.00001);
 }
 END_TEST
 
@@ -28,7 +41,8 @@ Suite * harmonic_suite(void)
 
   tc_core = tcase_create("Core");
   
-  tcase_add_test(tc_core, test_harmonic_oscillator);
+  tcase_add_test(tc_core, test_psi_n_plus);
+  tcase_add_test(tc_core, test_get_psi_1_for_nodes_odd);
   suite_add_tcase(s, tc_core);
 
   return s;

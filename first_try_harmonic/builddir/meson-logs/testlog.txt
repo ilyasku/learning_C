@@ -1,4 +1,4 @@
-Log of Meson test suite run on 2017-07-03T16:20:52.390368
+Log of Meson test suite run on 2017-07-04T13:26:56.705898
 
 1/1 test harmonic oscillator                OK       0.00 s
 
@@ -6,7 +6,7 @@ Log of Meson test suite run on 2017-07-03T16:20:52.390368
 /home/ilyas/workspace/learning_C/first_try_harmonic/builddir/test_executable
 --- stdout ---
 Running suite(s): Harmonic
-100%: Checks: 1, Failures: 0, Errors: 0
+100%: Checks: 2, Failures: 0, Errors: 0
 -------
 
 
