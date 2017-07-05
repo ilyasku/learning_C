@@ -25,7 +25,7 @@ double get_g_n(double xi_n);
 
 double get_f_n(double g_n);
 
-double get_psi_1_for_nodes_odd(double psi_0);
+double get_psi_1_for_nodes_even(double psi_0);
 
 int compute_psi(double epsilon_min, double epsilon_max,
 		 int N_intervals,

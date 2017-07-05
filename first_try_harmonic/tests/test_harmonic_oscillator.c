@@ -20,7 +20,7 @@ START_TEST(test_psi_n_plus)
 }
 END_TEST
 
-START_TEST(test_get_psi_1_for_nodes_odd)
+START_TEST(test_get_psi_1_for_nodes_even)
 {
   epsilon = 1.0;
   delta_xi = 0.1;
@@ -28,7 +28,7 @@ START_TEST(test_get_psi_1_for_nodes_odd)
 
   double psi_0 = 1.0;
 
-  double psi_1 = get_psi_1_for_nodes_odd(psi_0);
+  double psi_1 = get_psi_1_for_nodes_even(psi_0);
   ck_assert_double_eq_tol(1.010008, psi_1, 0.00001);
 }
 END_TEST
@@ -42,7 +42,7 @@ Suite * harmonic_suite(void)
   tc_core = tcase_create("Core");
   
   tcase_add_test(tc_core, test_psi_n_plus);
-  tcase_add_test(tc_core, test_get_psi_1_for_nodes_odd);
+  tcase_add_test(tc_core, test_get_psi_1_for_nodes_even);
   suite_add_tcase(s, tc_core);
 
   return s;

@@ -8,7 +8,7 @@ double get_f_n(double g_n) {
   return 1 + g_n * delta_xi_squared / 12.;
 }
 
-double get_psi_1_for_nodes_odd(double psi_0) {
+double get_psi_1_for_nodes_even(double psi_0) {
   double g_0 = get_g_n(0.0);
   double g_1 = get_g_n(delta_xi);
   double f_0 = get_f_n(g_0);
