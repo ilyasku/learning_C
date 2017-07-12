@@ -45,6 +45,7 @@ void compute_f(int N_intervals) {
 
   if (index_of_last_sign_change >= N_intervals - 2) {
     fprintf(stderr, "last change of sign too far!\n");
+    fprintf(stderr, "");
     fprintf(stderr, "index = %i\n", index_of_last_sign_change);
     exit(1);
   }
