@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
   char *output_folder_name = argv[5];
 
   int n_max_iterations = 1000;
+  double threshold_in_derivatives = 0.000001;
 
   psi = (double *) malloc((N_intervals + 1) * sizeof(double));
   xi = (double *) malloc((N_intervals + 1) * sizeof(double));
@@ -32,9 +33,9 @@ int main(int argc, char **argv) {
     vpot[i] = 0.5 * xi[i] * xi[i];
   }  
   
-  double epsilon_max = vpot[N_intervals];
-  double epsilon_min = epsilon_max;
-
+  epsilon_max = vpot[N_intervals];
+  epsilon_min = epsilon_max;
+  
   for (int i = 0; i <= N_intervals; ++i) {
     if ( vpot[i] < epsilon_min )
       epsilon_min = vpot[i];
@@ -66,10 +67,33 @@ int main(int argc, char **argv) {
     psi[0] = psi_0;
     psi[1] = psi_1;
 
-    int remaining_iterations = compute_psi(epsilon_min, epsilon_max, N_intervals,
+    int index_classical_limit = find_classical_limit(0, N_intervals);
+    
+    if (index_classical_limit > N_intervals - 2) {
+      fprintf(stderr, "ERROR: classical limit too close to xi_max\n");
+      abort();
+    }
+    
+    int remaining_iterations = compute_psi(index_classical_limit,
 					   n_max_iterations, number_of_nodes);
 
     printf("number of actual iterations: %d\n", n_max_iterations - remaining_iterations);
+
+    psi_right = (double *) malloc((N_intervals + 1 - index_classical_limit) * sizeof(double));
+
+    psi_right[N_intervals - index_classical_limit] = delta_xi;
+    psi_right[N_intervals - index_classical_limit - 1] =
+      (12. - 10. * f[N_intervals]) * delta_xi / f[N_intervals - 1];
+
+    psi_matching_point_left = psi[index_classical_limit];
+    
+    remaining_iterations = compute_psi_from_right_to_left(N_intervals, index_classical_limit,
+							  n_max_iterations,
+							  threshold_in_derivatives);
+
+    printf("number of actual iterations\nmatching left and right Psi: %d\n", n_max_iterations - remaining_iterations);
+
+    normalize_psi(N_intervals);
     
     char *file_name;
     file_name = malloc(strlen(output_folder_name) + 1 + 6);
@@ -94,7 +118,8 @@ int main(int argc, char **argv) {
     }
     
     fclose(out_file);
-    free(file_name);				  
+    free(file_name);
+    free(psi_right);
   }  
   
   free(psi);

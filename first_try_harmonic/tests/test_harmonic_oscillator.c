@@ -33,6 +33,23 @@ START_TEST(test_get_psi_1_for_nodes_even)
 }
 END_TEST
 
+START_TEST(test_find_classical_limit)
+{
+  epsilon = 8.02;
+  int N_intervals = 100;
+  vpot = (double *) malloc((N_intervals + 1) * sizeof(double));
+  for (int i = 0; i <= N_intervals; ++i) {
+    vpot[i] = 0.1 * i;
+  }
+  int index_classical_limit = find_classical_limit(0, N_intervals);
+  ck_assert_int_eq(81, index_classical_limit);
+
+  epsilon = 9.86;
+  index_classical_limit = find_classical_limit(50, N_intervals);
+  ck_assert_int_eq(99, index_classical_limit);  
+}
+END_TEST
+
 Suite * harmonic_suite(void)
 {
   Suite *s;
@@ -43,6 +60,7 @@ Suite * harmonic_suite(void)
   
   tcase_add_test(tc_core, test_psi_n_plus);
   tcase_add_test(tc_core, test_get_psi_1_for_nodes_even);
+  tcase_add_test(tc_core, test_find_classical_limit);
   suite_add_tcase(s, tc_core);
 
   return s;

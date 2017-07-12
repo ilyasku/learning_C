@@ -15,4 +15,4 @@ for i in range(4):
     data[i][data[i][:, 1] > 1e12, 1] = 1e12
     ax[i].plot(data[i][:, 0], data[i][:, 1])
 
-f.show()
+plt.show()

@@ -1,1 +1,0 @@
-{"name": "test harmonic oscillator", "stdout": "Running suite(s): Harmonic\n100%: Checks: 2, Failures: 0, Errors: 0\n", "result": "OK", "duration": 0.0016951560974121094, "returncode": 0, "command": ["/home/ilyas/workspace/learning_C/first_try_harmonic/builddir/test_executable"], "env": {}}
