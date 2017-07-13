@@ -13,35 +13,27 @@ int main(int argc, char **argv) {
   
   FILE *out_file;
 
-  int N_intervals = atoi(argv[1]);
+  N_intervals = atoi(argv[1]);
   delta_xi = atof(argv[2]); 
   double psi_one_for_nodes_odd = atof(argv[3]);
   double psi_zero_for_nodes_even = atof(argv[4]);  
   char *output_folder_name = argv[5];
 
   int n_max_iterations = 1000;
-  double threshold_in_derivatives = 0.000001;
+  double threshold_in_derivatives = 1e-5;
 
   psi = (double *) malloc((N_intervals + 1) * sizeof(double));
   xi = (double *) malloc((N_intervals + 1) * sizeof(double));
   f = (double *) malloc((N_intervals + 1) * sizeof(double));
   vpot = (double *) malloc((N_intervals + 1) * sizeof(double));
 
+  PSI_RIGHT_ALLOCATED = 0;
+  
   /* set up the potential */
   for (int i = 0; i <= N_intervals; i++) {
     xi[i] = (double) i * delta_xi;
     vpot[i] = 0.5 * xi[i] * xi[i];
   }  
-  
-  epsilon_max = vpot[N_intervals];
-  epsilon_min = epsilon_max;
-  
-  for (int i = 0; i <= N_intervals; ++i) {
-    if ( vpot[i] < epsilon_min )
-      epsilon_min = vpot[i];
-    if ( vpot[i] > epsilon_max )
-      epsilon_max = vpot[i];
-  }
   
   double psi_0;
   double psi_1;
@@ -50,7 +42,8 @@ int main(int argc, char **argv) {
   
   delta_xi_squared = delta_xi * delta_xi;
   
-  for (int number_of_nodes = 0; number_of_nodes < 4; number_of_nodes ++) {    
+  for (int number_of_nodes = 0; number_of_nodes < 4; number_of_nodes ++) {
+    
     if ((number_of_nodes % 2) == 0) {
       psi_0 = psi_zero_for_nodes_even;
       psi_1 = get_psi_1_for_nodes_even(psi_0);
@@ -60,40 +53,21 @@ int main(int argc, char **argv) {
       psi_1 = psi_one_for_nodes_odd;
       sign_for_negative_xi = -1.;
     }
+
+    printf("======================================\n");
     printf("number_of_nodes = %i\n", number_of_nodes);
     printf("psi_0 = %f\n", psi_0);
     printf("psi_1 = %f\n", psi_1);
 
+    
+    initialize_epsilon_range();
+    
     psi[0] = psi_0;
     psi[1] = psi_1;
-
-    int index_classical_limit = find_classical_limit(0, N_intervals);
-    
-    if (index_classical_limit > N_intervals - 2) {
-      fprintf(stderr, "ERROR: classical limit too close to xi_max\n");
-      abort();
-    }
-    
-    int remaining_iterations = compute_psi(index_classical_limit,
-					   n_max_iterations, number_of_nodes);
+            
+    int remaining_iterations = compute_psi(n_max_iterations, number_of_nodes, threshold_in_derivatives);
 
     printf("number of actual iterations: %d\n", n_max_iterations - remaining_iterations);
-
-    psi_right = (double *) malloc((N_intervals + 1 - index_classical_limit) * sizeof(double));
-
-    psi_right[N_intervals - index_classical_limit] = delta_xi;
-    psi_right[N_intervals - index_classical_limit - 1] =
-      (12. - 10. * f[N_intervals]) * delta_xi / f[N_intervals - 1];
-
-    psi_matching_point_left = psi[index_classical_limit];
-    
-    remaining_iterations = compute_psi_from_right_to_left(N_intervals, index_classical_limit,
-							  n_max_iterations,
-							  threshold_in_derivatives);
-
-    printf("number of actual iterations\nmatching left and right Psi: %d\n", n_max_iterations - remaining_iterations);
-
-    normalize_psi(N_intervals);
     
     char *file_name;
     file_name = malloc(strlen(output_folder_name) + 1 + 6);
@@ -107,6 +81,10 @@ int main(int argc, char **argv) {
 
     fprintf (out_file,"#   xi       Psi(xi)      V\n");
 
+    fprintf(stderr, "------------------\n");
+    fprintf(stderr, "before writing the file:\n");
+    fprintf(stderr, "N_intervals = %i\n", N_intervals);	
+    
     for (int i = N_intervals; i >=0; i--) {
       fprintf(out_file, "%7.3f%16.8e%12.6f\n",
 	      -xi[i], sign_for_negative_xi* psi[i], vpot[i]);
@@ -119,7 +97,6 @@ int main(int argc, char **argv) {
     
     fclose(out_file);
     free(file_name);
-    free(psi_right);
   }  
   
   free(psi);

@@ -29,7 +29,7 @@ double psi_n_plus(double xi_n_minus, double psi_n_minus,
   return ((12 - 10 * f_n) * psi_n - f_n_minus * psi_n_minus) / f_n_plus;
 }
 
-void compute_f(int N_intervals) {
+void compute_f() {
   double ddx12 = delta_xi_squared / 12.;
   f[0] = ddx12 * (2. * (vpot[0] - epsilon));
   int index_of_last_sign_change = -1;
@@ -45,7 +45,7 @@ void compute_f(int N_intervals) {
 
   if (index_of_last_sign_change >= N_intervals - 2) {
     fprintf(stderr, "last change of sign too far!\n");
-    fprintf(stderr, "");
+    fprintf(stderr, "N_intervals = %i\n", N_intervals);
     fprintf(stderr, "index = %i\n", index_of_last_sign_change);
     exit(1);
   }
@@ -61,13 +61,26 @@ void compute_f(int N_intervals) {
   }
 }
 
-int compute_psi(int N_intervals,		 
-		int n_max_iterations,
-		int expected_number_of_nodes){
+int compute_psi(int n_max_iterations,
+		int expected_number_of_nodes,
+		double threshold_in_derivatives)
+{
 
+  printf("--\n");
+  printf("ENTER COMPUTE_PSI\n");
+  printf("n_max_iterations = %i\n", n_max_iterations);
+
+  
   epsilon = 0.5 * (epsilon_max + epsilon_min);
 
-  compute_f(N_intervals);
+  find_classical_limit();
+
+  if (index_classical_limit > N_intervals - 2) {
+    fprintf(stderr, "ERROR: classical limit too close to xi_max\n");
+    abort();
+  }
+  
+  compute_f();
   
   int count_sign_changes = 0;
   if (psi[0] == 0.0) {
@@ -80,38 +93,66 @@ int compute_psi(int N_intervals,
       ++count_sign_changes;
   }
 
-  if ((epsilon_max - epsilon_min) < 1e-10) {
-    return n_max_iterations;
+  if (n_max_iterations <= 1) {
+    compute_psi_right(DBL_MAX);
+    concatenate_psi_left_and_psi_right();
+    normalize_psi();    
+    return 0;
   }
-  if (n_max_iterations == 1) {
-    return n_max_iterations;
-  }
-
+  
   if (count_sign_changes > expected_number_of_nodes) {
     epsilon_max = epsilon;
-  } else {
-    epsilon_min = epsilon;
+    return compute_psi(n_max_iterations - 1, expected_number_of_nodes,
+		       threshold_in_derivatives);  
   }
+  if (count_sign_changes < expected_number_of_nodes) {
+    epsilon_min = epsilon;
+    return compute_psi(n_max_iterations - 1, expected_number_of_nodes, threshold_in_derivatives);  
+  }
+      
+  int psi_right_matches_psi_left = compute_psi_right(threshold_in_derivatives);
 
-  return compute_psi(N_intervals, n_max_iterations - 1, expected_number_of_nodes);  
+  if (psi_right_matches_psi_left == 0) {
+    return compute_psi(n_max_iterations - 1, expected_number_of_nodes, threshold_in_derivatives);
+  }
+  
+  concatenate_psi_left_and_psi_right();
+  normalize_psi();
+  return n_max_iterations;
+}  
+
+void concatenate_psi_left_and_psi_right(void) {
+  for (int i = 1; i <= N_intervals - index_classical_limit; i++) {
+    psi[index_classical_limit + i] = psi_right[i];
+  }
 }
 
-int find_classical_limit(int lower_limit, int upper_limit) {
+void find_classical_limit() {
+  int lower_limit = 0;
+  int upper_limit = N_intervals;
+
   int index_found = 0;
+
+
+  int count = 0;
   while (index_found == 0) {
     if ((upper_limit - lower_limit) <= 1) {
-      return upper_limit;
+      fprintf(stderr, "return index %i after %i loops\n", upper_limit, count);
+      index_classical_limit = upper_limit;
+      return;
     }    
-    int index_classical_limit = (upper_limit + lower_limit) / 2;
+    index_classical_limit = (upper_limit + lower_limit) / 2;
     double v = vpot[index_classical_limit];
     if (v == epsilon) {
-      return index_classical_limit;
+      fprintf(stderr, "due to v == epsilon,\nreturn index %i after %i loops\n", index_classical_limit, count);
+      return;
     }
     if (v < epsilon) {
       lower_limit = index_classical_limit;
       continue;
     }
-    upper_limit = index_classical_limit;    
+    upper_limit = index_classical_limit;
+    count++;
   }
   fprintf(stderr,							\
 	  "*** '%s' in '%s' on line %d failed with error '%s'.\n",	\
@@ -120,17 +161,32 @@ int find_classical_limit(int lower_limit, int upper_limit) {
   abort();
 }
 
-int compute_psi_from_right_to_left(int N_intervals, int index_classical_limit,
-				   int n_max_iterations, double threshold_difference_in_derivatives) {
+int compute_psi_right(double threshold_difference_in_derivatives) {
+
+  printf("----\n");
+  printf("ENTER COMPUTE_PSI_RIGHT\n");
 
   int N_intervals_right = N_intervals - index_classical_limit;
+
+  printf("N_intervals_right = %i\n", N_intervals_right);
   
-  for (int i = 2; i >= N_intervals_right; i++) {
+  if (PSI_RIGHT_ALLOCATED) free(psi_right);
+  
+  PSI_RIGHT_ALLOCATED = 1;
+  psi_right = (double *) malloc((N_intervals_right + 1) * sizeof(double));
+    
+  psi_right[N_intervals_right] = delta_xi;
+  psi_right[N_intervals_right - 1] =
+    (12. - 10. * f[N_intervals]) * delta_xi / f[N_intervals - 1];
+ 
+  psi_matching_point_left = psi[index_classical_limit];      
+  
+  for (int i = 2; i <= N_intervals_right; i++) {
     psi_right[N_intervals_right - i] =
       ((12. - 10. * f[N_intervals - i + 1]) * psi_right[N_intervals_right - i + 1] - \
-       psi_right[N_intervals_right - i + 2] * f[N_intervals + 2]) / f[N_intervals - i];
+       psi_right[N_intervals_right - i + 2] * f[N_intervals - i + 2]) / f[N_intervals - i];
   }
-
+  
   psi_matching_point_right = psi_right[0];
   double matching_factor = psi_matching_point_left / psi_matching_point_right;
 
@@ -141,35 +197,33 @@ int compute_psi_from_right_to_left(int N_intervals, int index_classical_limit,
     (psi[index_classical_limit - 1] + psi_right[1] \
      - (14. - 12. * f[index_classical_limit]) * psi_matching_point_left) / delta_xi;
 
-  if (abs(difference_in_left_and_right_derivative) <= threshold_difference_in_derivatives ||
-      n_max_iterations <= 1){
-    normalize_psi_right_and_write_to_psi(matching_factor, N_intervals_right,
-					 index_classical_limit);
-    return n_max_iterations - 1;
+  printf("difference_in_left_and_right_derivative = %f\n", difference_in_left_and_right_derivative);
+  
+  if (fabs(difference_in_left_and_right_derivative) <= threshold_difference_in_derivatives){
+    printf("difference is small enough! %f <= %f\n",
+	   fabs(difference_in_left_and_right_derivative),
+	   threshold_difference_in_derivatives);
+    printf("returning 1\n");
+    match_psi_right(matching_factor, N_intervals_right);
+    return 1;
   }
-
   if (difference_in_left_and_right_derivative < 0) {
     epsilon_min = epsilon;
   } else {
     epsilon_max = epsilon;
   }
-
-  epsilon = 0.5 * (epsilon_max + epsilon_min);
-
-  return compute_psi_from_right_to_left(N_intervals, index_classical_limit,
-					n_max_iterations - 1, threshold_difference_in_derivatives);    
+  return 0;
 }
 
-void normalize_psi_right_and_write_to_psi(double matching_factor, int N_intervals_right,
-					  int index_classical_limit) {
-  for (int i = 1; i <= N_intervals_right; i++) {
-    psi[index_classical_limit + i] = psi_right[i] * matching_factor;
+void match_psi_right(double matching_factor, int N_intervals_right) {
+  for (int i = 2; i <= N_intervals_right; i++) {
+    psi_right[i] = psi_right[i] * matching_factor;
   }  
 }
 
-void normalize_psi(int N_intervals) {
+void normalize_psi() {
   double norm = 0.;
-  for (int i = 1; i <= N_intervals; i++) {
+  for (int i = 1; i <= N_intervals; i++) {    
     norm += psi[i] * psi[i];
   }
   norm = delta_xi * (2. * norm + psi[0] * psi[0]);
@@ -177,5 +231,17 @@ void normalize_psi(int N_intervals) {
 
   for (int i = 0; i <= N_intervals; i++) {
     psi[i] /= norm;
+  }
+}
+
+void initialize_epsilon_range(void) {
+  epsilon_max = vpot[N_intervals];
+  epsilon_min = epsilon_max;
+  
+  for (int i = 0; i <= N_intervals; ++i) {
+    if ( vpot[i] < epsilon_min )
+      epsilon_min = vpot[i];
+    if ( vpot[i] > epsilon_max )
+      epsilon_max = vpot[i];
   }
 }

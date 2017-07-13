@@ -5,8 +5,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 
 double sqrt();
+
+int N_intervals;
+int index_classical_limit;
+
+int PSI_RIGHT_ALLOCATED;
 
 double omega;
 double epsilon;
@@ -35,21 +41,23 @@ double get_f_n(double g_n);
 
 double get_psi_1_for_nodes_even(double psi_0);
 
-int compute_psi(int N_intervals,
-		int n_max_iterations,
-		int expected_number_of_nodes);
+int compute_psi(int n_max_iterations,
+		int expected_number_of_nodes,
+		double threshold_difference_in_derivatives);
 
-void compute_f(int N_intervals);
+void compute_f();
 
-int find_classical_limit(int lower_limit, int upper_limit);
+void concatenate_psi_left_and_psi_right(void);
 
-int compute_psi_from_right_to_left(int N_intervals, int index_classical_limit,
-				   int n_max_iterations,
-				   double threshold_difference_in_derivatives);
+void find_classical_limit();
 
-void normalize_psi_right_and_write_to_psi(double matching_factor, int N_intervals_right,
-					  int index_classical_limit);
+int compute_psi_right(double threshold_difference_in_derivatives);
 
-void normalize_psi(int N_intervals);
+void match_psi_right(double matching_factor, int N_intervals_right);
+			
+
+void normalize_psi();
+
+void initialize_epsilon_range(void);
 
 #endif /* HARMONIC_H */
